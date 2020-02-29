@@ -8,6 +8,11 @@ import (
 	"os"
 )
 
+const (
+	DefaultPort    = "8080"
+	DefaultVersion = "0.0.0"
+)
+
 type Response struct {
 	Message string `json:"message"`
 }
@@ -20,20 +25,12 @@ type VersionResponse struct {
 	Version string `json:"version"`
 }
 
-func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	version := os.Getenv("VERSION")
-	if version == "" {
-		version = "0.0.0"
-	}
+func CreateServerMux(version string) *http.ServeMux {
+	mux := http.NewServeMux()
 
 	// Default endpoint
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		resp := Response{Message: "Hello, world!"}
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		resp := Response{Message: "Hello world!"}
 		data, err := json.MarshalIndent(&resp, "", "  ")
 		if err != nil {
 			log.Println(err)
@@ -44,7 +41,7 @@ func main() {
 	})
 
 	// Health endpoint
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		resp := HealthResponse{Ok: true}
 		data, err := json.MarshalIndent(&resp, "", "  ")
 		if err != nil {
@@ -56,7 +53,7 @@ func main() {
 	})
 
 	// Version endpoint
-	http.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
 		resp := VersionResponse{Version: version}
 		data, err := json.MarshalIndent(&resp, "", "  ")
 		if err != nil {
@@ -67,6 +64,22 @@ func main() {
 		w.Write(data)
 	})
 
+	return mux
+}
+
+func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = DefaultPort
+	}
+
+	version := os.Getenv("VERSION")
+	if version == "" {
+		version = DefaultVersion
+	}
+
+	mux := CreateServerMux(version)
+
 	log.Println(fmt.Sprintf("Server running on port: %s", port))
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), mux))
 }
