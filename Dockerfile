@@ -10,3 +10,4 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 FROM scratch
 COPY --from=go-builder /app/thirteen .
 ENTRYPOINT ["/thirteen"]
+EXPOSE 8080
