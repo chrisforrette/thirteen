@@ -1,4 +1,4 @@
-FROM golang:1.13-buster as go-builder
+FROM golang:1.16-buster as go-builder
 ENV GO111MODULE=on
 WORKDIR /app
 COPY . /app/

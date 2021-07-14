@@ -1,3 +1,3 @@
 module github.com/chrisforrette/thirteen
 
-go 1.13
+go 1.16
